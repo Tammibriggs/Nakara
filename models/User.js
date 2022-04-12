@@ -31,7 +31,8 @@ const UserSchema = new mongoose.Schema(
       default: {
         availableAmount: 0,
         lockedAmount: 0,
-        interestTime: 0
+        interestTime: 0,
+        lockedFundsDuration: 0
       }
     },
     isAdmin: {

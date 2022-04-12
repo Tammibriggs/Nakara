@@ -14,8 +14,8 @@ const LockFunds = new mongoose.Schema(
       type: String,
       required: true,
     },
-    duration: {
-      type: String,
+    monthsDuration: {
+      type: Number,
       required: true,
     }
   },

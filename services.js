@@ -292,7 +292,7 @@ module.exports.sendIdVerifyUserEmail = ({name, email, phoneNumber, idNumber, idT
   return sgMail.send(message)
 }
 
-module.exports.lockFundsAdminEmail = ({name, amount, duration}, date) => {
+module.exports.lockFundsAdminEmail = ({name, amount, monthsDuration}, date) => {
   const message = {
     from: {
       name: 'NakaraX',
@@ -303,14 +303,14 @@ module.exports.lockFundsAdminEmail = ({name, amount, duration}, date) => {
     text: `
       Name: ${name}\n
       Amount: ${amount}\n
-      Duration: ${duration}\n
+      Duration: ${monthsDuration} months\n
       Date: ${date}
     `,
     html: `
       <p>
         <strong>Name:</strong> ${name}<br/>
         <strong>Amount:</strong> ${amount}<br/>
-        <strong>Duration:</strong> ${duration}<br/>
+        <strong>Duration:</strong> ${monthsDuration} months<br/>
         <strong>Date:</strong> ${date}
       </p>
     `
@@ -318,7 +318,7 @@ module.exports.lockFundsAdminEmail = ({name, amount, duration}, date) => {
   return sgMail.send(message)
 }
 
-module.exports.lockFundsUserEmail = ({name, email, amount, duration}, date) => {
+module.exports.lockFundsUserEmail = ({name, email, amount, monthsDuration}, date) => {
   const message = {
     from: {
       name: 'NakaraX@noreply',
@@ -329,7 +329,7 @@ module.exports.lockFundsUserEmail = ({name, email, amount, duration}, date) => {
     text: `Your request to lock crypto processing
       Name: ${name}\n
       Amount ${amount}\n
-      Duration ${duration}\n
+      Duration ${monthsDuration} months\n
       Date: ${date}
     `,
     html: `
@@ -339,7 +339,7 @@ module.exports.lockFundsUserEmail = ({name, email, amount, duration}, date) => {
         <p>
           <strong>Name:</strong> ${name}<br/>
           <strong>Amount:</strong> ${amount}<br/>
-          <strong>Duration:</strong> ${duration}<br/>
+          <strong>Duration:</strong> ${monthsDuration} months<br/>
           <strong>Date:</strong> ${date}
         </p>
       </div>
