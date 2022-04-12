@@ -15,8 +15,47 @@ router.get('/find/:id', verifyTokenAndAuthorization, async (req, res) => {
   }
 })
 
+// set interest route to be used in the admin page
+router.get('/setInterestAdmin/:id', async(req, res) => {
+  const date = new Date()
+  const tomorrow = date.setDate(date.getDate() + 1)
+
+  try{
+    const user = await User.findById(req.params.id)
+    const {wallet} = user._doc
+    const {lockedAmount, interestTime, lockedFundsDuration} = wallet
+
+    // if the locked amount is less than 5000, set the interest time to 0
+    if(lockedAmount < 5000){
+      const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+        $set: {'wallet.interestTime' : 0}
+      }, {new: true})
+      const {wallet} = updatedUser._doc
+      return res.status(200).json({status: 'ok', wallet})
+    }
+
+    // if the locked amount is greater than 5000 and the interest equals 0
+    // set the interest time to the next day
+    if(lockedAmount >= 5000 && interestTime === 0){ 
+      if(lockedFundsDuration === 0){
+        return res.status(422).json({status: 'error', message:'Locked funds duration has not been set.'})
+      }else{
+        const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+          $set: {'wallet.interestTime' : tomorrow}
+        }, {new : true})
+        const {wallet} = updatedUser._doc
+        return res.status(200).json({status: 'ok', wallet})
+      }
+    }
+
+    return res.status(200).json({status:'ok', wallet})
+  }catch(err){
+    res.status(500).json({status:'error', message:'Unable to add interest'})
+  }
+})
+
 // Add interst to wallet balance
-router.post('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) => {
+router.get('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) => {
   const date = new Date()
   const today = date.getTime()
   const tomorrow = date.setDate(date.getDate() + 1)
@@ -30,22 +69,16 @@ router.post('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) =>
     if(lockedAmount < 5000) {
       const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
         $set: {'wallet.interestTime' : 0}
-      }, {new : true})
+      }, {new: true})
       const {wallet} = updatedUser._doc
-      return res.status(422).json({
-        status: 'error',
-        error: 'insufficientLockedAmount',
-        message: "can't recieve interest. Insufficient locked fund",
-        wallet
-      })
+      return res.status(200).json({status: 'ok', wallet})
     }
 
     // if the locked amount is greater than 5000 and the interest equals 0
     // set the interest time to the next day
     if(lockedAmount >= 5000 && interestTime === 0){ 
-      console.log(lockedFundsDuration)
       if(lockedFundsDuration === 0){
-        return res.status(422).json({status: 'error', message:'Locked funds duration has not been set.', wallet})
+        return res.status(422).json({status: 'error', message:'Locked funds duration has not been set.',})
       }else{
         const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
           $set: {'wallet.interestTime' : tomorrow}
