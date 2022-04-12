@@ -1,18 +1,21 @@
 const router = require('express').Router()
-const {verifyTokenAndAdmin} = require('./verifyToken')
+const {verifyTokenAndAuthorization} = require('./verifyToken')
 const { lockFundsAdminEmail, lockFundsUserEmail} = require('../services')
 const LockFund = require('../models/LockFund')
 const User = require('../models/User')
 
 const validateLockFunds = (req, res, next) => {
   const emailValidator = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-  const {name, email, amount, monthsDuration} = req.body
+  const {name, email, amount, monthsDuration, userId} = req.body
 
   if(!name || typeof name !== 'string'){
     return res.status(401).json({status: 'error', message: 'Invalid name'})
   }
   else if(!amount || typeof amount !== 'number'){
     return res.status(401).json({status: 'error', message: 'Invalid amount'})
+  }
+  else if(!userId || typeof userId !== 'string'){
+    return res.status(401).json({status: 'error', message: 'Invalid user id'})
   }
   else if(!email.match(emailValidator)){
     return res.status(401).json({status: 'error', message: 'Invalid email'})
@@ -26,11 +29,9 @@ const validateLockFunds = (req, res, next) => {
 }
 
 // CREATE
-router.post('/:id', validateLockFunds, verifyTokenAndAdmin, async(req, res) => {
+router.post('/:id', verifyTokenAndAuthorization, validateLockFunds, async(req, res) => {
   const {amount} = req.body
   const numAmount = Number(amount)
-
-  console.log(numAmount)
 
   try{
     const user = await User.findById(req.params.id)

@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const User = require('../models/User')
-const {verifyTokenAndAuthorization} = require('./verifyToken')
+const {verifyTokenAndAuthorization, verifyTokenAndAdmin} = require('./verifyToken')
 
 // GET USER
 router.get('/find/:id', verifyTokenAndAuthorization, async (req, res) => {
@@ -24,7 +24,7 @@ router.post('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) =>
   try{
     const user = await User.findById(req.params.id)
     const {wallet} = user._doc
-    const {lockedAmount, interestTime, availableAmount} = wallet
+    const {lockedAmount, interestTime, availableAmount, lockedFundsDuration} = wallet
 
     // if the locked amount is less than 5000, set the interest time to 0
     if(lockedAmount < 5000) {
@@ -43,11 +43,16 @@ router.post('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) =>
     // if the locked amount is greater than 5000 and the interest equals 0
     // set the interest time to the next day
     if(lockedAmount >= 5000 && interestTime === 0){ 
-      const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
-        $set: {'wallet.interestTime' : tomorrow}
-      }, {new : true})
-      const {wallet} = updatedUser._doc
-      return res.status(200).json({status: 'ok', wallet})
+      console.log(lockedFundsDuration)
+      if(lockedFundsDuration === 0){
+        return res.status(422).json({status: 'error', message:'Locked funds duration has not been set.', wallet})
+      }else{
+        const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+          $set: {'wallet.interestTime' : tomorrow}
+        }, {new : true})
+        const {wallet} = updatedUser._doc
+        return res.status(200).json({status: 'ok', wallet})
+      }
     }
     
     // if the locked amount is greater than 5000, the interest time is greater and 0
@@ -55,29 +60,61 @@ router.post('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) =>
     // in respect the number of days the interest time is less than today
     if(lockedAmount >= 5000 && interestTime > 0 && interestTime <= today){
       let interest = 0
-      const timeDifference = today - interestTime
-      const dayDifference = timeDifference / (1000 * 3600 * 24);
-      let roundedDay = Math.round(dayDifference)
+      let absoluteDay = 0
+      let newAvailableAmount = 0
+
       
-      if(roundedDay === 0){
-        interest = lockedAmount * (0.3333/100)
-      }else if(roundedDay >= 1){
-        roundedDay += 1
-        interest = (lockedAmount * (0.3333/100)) * roundedDay
-      }
-      
-      console.log(roundedDay, interest)
-      const newAvailableAmount = availableAmount + interest
-      const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
-        $set: {
-          'wallet.availableAmount' : newAvailableAmount,
-          'wallet.interestTime' : tomorrow
+      if(lockedFundsDuration > 0 && today >= lockedFundsDuration){
+        const timeDifference = lockedFundsDuration - interestTime
+        const dayDifference = timeDifference / (1000 * 3600 * 24)
+        absoluteDay = Math.abs(Math.round(dayDifference))
+        
+        // set the interest base on the days past since the interest was added (absolute day)
+        if(absoluteDay === 0){
+          interest = lockedAmount * (0.3333/100)
+        }else if(absoluteDay >= 1){
+          absoluteDay += 1
+          interest = (lockedAmount * (0.3333/100)) * absoluteDay
         }
-      }, {new : true})
-      const {wallet} = updatedUser._doc
-      return res.status(200).json({status: 'ok', wallet})
+
+        newAvailableAmount = availableAmount + lockedAmount + interest
+        const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+          $set: {
+            'wallet.availableAmount' : Math.round(newAvailableAmount),
+            'wallet.lockedAmount' : 0,
+            'wallet.interestTime' : 0,
+            'wallet.lockedFundsDuration' : 0
+          }
+        }, {new : true})
+        const {wallet} = updatedUser._doc
+        return res.status(200).json({status: 'ok', wallet})
+
+      }else{
+        const timeDifference = today - interestTime
+        const dayDifference = timeDifference / (1000 * 3600 * 24);
+        absoluteDay = Math.abs(Math.round(dayDifference))
+        
+        // set the interest base on the days past since the interest was added (absolute day)
+        if(absoluteDay === 0){
+          interest = lockedAmount * (0.3333/100)
+        }else if(absoluteDay >= 1){
+          absoluteDay += 1
+          interest = (lockedAmount * (0.3333/100)) * absoluteDay
+        }
+
+        newAvailableAmount = availableAmount + interest
+        const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+          $set: {
+            'wallet.availableAmount' : Math.round(newAvailableAmount),
+            'wallet.interestTime' : tomorrow
+          }
+        }, {new : true})
+        const {wallet} = updatedUser._doc
+
+        return res.status(200).json({status: 'ok', wallet})
+      } 
     }
-    
+
     return res.status(200).json({status: 'ok', wallet})
   }catch(err){
     res.status(500).json({status:'error', message:'Unable to add interest'})
