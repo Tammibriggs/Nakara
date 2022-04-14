@@ -15,21 +15,24 @@ sgMail.setApiKey(sendGridKey)
 module.exports.sendVerificationEmail = (email, name, verificationCode, redirectUrl) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'noreply@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
     subject: 'Verify your email address',
-    text: `Hello ${name}\n Follow this link to verify your email address.
-    https://nakara.herokuapp.com/api/auth/verify-email?code=${verificationCode}&redirectUrl=${redirectUrl}\nif you didn't ask to verify this address, you can ignore this email.\nThanks.
+    text: `Hello ${name}\nFollow this link to verify your email address.\n
+    https://nakara.herokuapp.com/api/auth/verify-email?code=${verificationCode}&redirectUrl=${redirectUrl}\nif you didn't ask to verify this address, 
+    you can ignore this email.\nThanks.\nSupport@YZXchange.com
     `,
     html: 
     `
      <h4>Hello ${name}</h4>
      <p>Follow this link to verify your email address.</p>
-     https://nakara.herokuapp.com/api/auth/verify-email?code=${verificationCode}&redirectUrl=${redirectUrl}
-     <p>if you didn't ask to verify this address, you can ignore this email.</p><br/>
+     <a target='_blank' href='https://nakara.herokuapp.com/api/auth/verify-email?code=${verificationCode}&redirectUrl=${redirectUrl}'>Verify your email</a>
+     <p>if you didn't ask to verify this address, you can ignore this email.</p>
      <p>Thanks.<p>
+     <p>Support@YZXchange.com</p>
+
     `
   }
   return sgMail.send(message)
@@ -38,7 +41,7 @@ module.exports.sendVerificationEmail = (email, name, verificationCode, redirectU
 module.exports.sendBuyCryptoAdminEmail = ({name, currency, amount, walletAddress}) => {
   const message = {
     from: {
-      name: 'NakaraX',
+      name: 'noreply@YZXchange.com',
       email: verifiedEmail
     },
     to: verifiedEmail,
@@ -66,7 +69,7 @@ module.exports.sendBuyCryptoAdminEmail = ({name, currency, amount, walletAddress
 module.exports.sendBuyCryptoUserEmail = ({name, email, currency, amount, walletAddress}) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'noreply@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
@@ -76,6 +79,7 @@ module.exports.sendBuyCryptoUserEmail = ({name, email, currency, amount, walletA
       Currency amount: ${amount.currencyAmount}\n
       Naira: ${amount.nairaAmount}\n
       Wallet Address: ${walletAddress}\n
+      Please Contact Support if you didn’t initiate this transaction\n\nSupport@YZXchange.com
     `,
     html: `
       <div>
@@ -88,6 +92,8 @@ module.exports.sendBuyCryptoUserEmail = ({name, email, currency, amount, walletA
           <strong>Naira:</strong> ${amount.nairaAmount}<br/>
           <strong>Wallet address:</strong> ${walletAddress}
         </p>
+        <p>Please contact Support if you didn’t initiate this Transaction.</p><br/>
+        Support@YZXchange.com
       <div>
     `
   }
@@ -97,7 +103,7 @@ module.exports.sendBuyCryptoUserEmail = ({name, email, currency, amount, walletA
 module.exports.sendSellCryptoAdminEmail = ({name, currency, amount, bankName, accountName, accountNumber, img}) => {
   const message = {
     from: {
-      name: 'NakaraX',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: verifiedEmail,
@@ -131,12 +137,12 @@ module.exports.sendSellCryptoAdminEmail = ({name, currency, amount, bankName, ac
 module.exports.sendSellCryptoUserEmail = ({name, email, currency, amount, bankName, accountName, accountNumber, img}) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
     subject: 'Sell Crypto Request',
-    text: `Your request to sell crypto processing
+    text: `Your request to sell crypto is processing
       Name: ${name}\n
       currency: ${currency}
       Currency amount: ${amount.currencyAmount}\n
@@ -169,7 +175,7 @@ module.exports.sendSellCryptoUserEmail = ({name, email, currency, amount, bankNa
 module.exports.addFundsAdminEmail = ({bankName, accountName, amount, img}, date) => {
   const message = {
     from: {
-      name: 'NakaraX',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: verifiedEmail,
@@ -199,12 +205,12 @@ module.exports.addFundsAdminEmail = ({bankName, accountName, amount, img}, date)
 module.exports.addFundsUserEmail = ({bankName, email, accountName, amount, img}, date) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
-    subject: 'Redeem Gift Card Request',
-    text: `Your request to redeem your gift card is processing
+    subject: 'Add Funds Request',
+    text: `Your request to fund your wallet is processing. 
       Bank name: ${bankName}\n
       Account name: ${accountName}
       Amount: ${amount}\n
@@ -213,7 +219,7 @@ module.exports.addFundsUserEmail = ({bankName, email, accountName, amount, img},
     `,
     html: `
       <div>
-        <h3>Your request to redeem your gift is processing</h3>
+        <h3>Your request to fund your wallet is processing.</h3>
         <h4>Here are your details:</h4>
         <p>
         <strong>Bank name:</strong> ${bankName}<br/>
@@ -231,7 +237,7 @@ module.exports.addFundsUserEmail = ({bankName, email, accountName, amount, img},
 module.exports.sendIdVerifyAdminEmail = ({name, phoneNumber, idNumber, idType, selfieImage, movImage}) => {
   const message = {
     from: {
-      name: 'NakaraX',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: verifiedEmail,
@@ -261,12 +267,12 @@ module.exports.sendIdVerifyAdminEmail = ({name, phoneNumber, idNumber, idType, s
 module.exports.sendIdVerifyUserEmail = ({name, email, phoneNumber, idNumber, idType, selfieImage, movImage}) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
     subject: 'New user verification',
-    text: `Your request to sell crypto processing
+    text: `These are the details you submitted for cerification. We will process it shortly and get back to you.
       Name: ${name}\n
       Phone number: ${phoneNumber}
       ID number: ${idNumber}\n
@@ -276,8 +282,7 @@ module.exports.sendIdVerifyUserEmail = ({name, email, phoneNumber, idNumber, idT
     `,
     html: `
       <div>
-        <h3>Your request is to verify your id is progress</h3>
-        <h4>Here are your details:</h4>
+        <h3>These are the details you submitted for cerification. We will process it shortly and get back to you.</h3>
         <p>
           <strong>Name:</strong> ${name}<br/>
           <strong>Phone number:</strong> ${phoneNumber}<br/>
@@ -295,7 +300,7 @@ module.exports.sendIdVerifyUserEmail = ({name, email, phoneNumber, idNumber, idT
 module.exports.lockFundsAdminEmail = ({name, amount, monthsDuration}, date) => {
   const message = {
     from: {
-      name: 'NakaraX',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: verifiedEmail,
@@ -321,12 +326,12 @@ module.exports.lockFundsAdminEmail = ({name, amount, monthsDuration}, date) => {
 module.exports.lockFundsUserEmail = ({name, email, amount, monthsDuration}, date) => {
   const message = {
     from: {
-      name: 'NakaraX@noreply',
+      name: 'Support@YZXchange.com',
       email: verifiedEmail
     },
     to: email,
     subject: 'Lock funds',
-    text: `Your request to lock crypto processing
+    text: `You have successfully submitted your request to lock your funds. Your details are below.
       Name: ${name}\n
       Amount ${amount}\n
       Duration ${monthsDuration} months\n
@@ -334,14 +339,15 @@ module.exports.lockFundsUserEmail = ({name, email, amount, monthsDuration}, date
     `,
     html: `
       <div>
-        <h3>Your request is to lock your funds is processing</h3>
-        <h4>Here are your details:</h4>
+        <h3>You have successfully submitted your request to lock your funds. Your details are below.</h3>
         <p>
           <strong>Name:</strong> ${name}<br/>
           <strong>Amount:</strong> ${amount}<br/>
           <strong>Duration:</strong> ${monthsDuration} months<br/>
           <strong>Date:</strong> ${date}
         </p>
+        <p>Please contact Support if you didn’t initiate this Transaction.</p><br/>
+        Support@YZXchange.com
       </div>
     `
   }
