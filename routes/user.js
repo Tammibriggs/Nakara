@@ -116,7 +116,8 @@ router.get('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) => 
             'wallet.availableAmount' : Math.round(newAvailableAmount),
             'wallet.lockedAmount' : 0,
             'wallet.interestTime' : 0,
-            'wallet.lockedFundsDuration' : 0
+            'wallet.lockedFundsDuration' : 0,
+            'wallet.lockedDate' : 0
           }
         }, {new : true})
         const {wallet} = updatedUser._doc
@@ -151,6 +152,31 @@ router.get('/addInterest/:id', verifyTokenAndAuthorization, async (req, res) => 
     return res.status(200).json({status: 'ok', wallet})
   }catch(err){
     res.status(500).json({status:'error', message:'Unable to add interest'})
+  }
+})
+
+// Unlock interest
+router.get('/unlock/:id', verifyTokenAndAuthorization, async (req, res) => {
+  try{
+    const user = await User.findById(req.params.id)
+    const {wallet} = user._doc
+    const {lockedAmount, availableAmount} = wallet
+    const newAvailableAmount = availableAmount + lockedAmount
+
+    const updatedUser = await User.findOneAndUpdate({_id: req.params.id}, {
+      $set: {
+        'wallet.availableAmount' : newAvailableAmount,
+        'wallet.lockedAmount' : 0,
+        'wallet.interestTime' : 0,
+        'wallet.lockedFundsDuration' : 0,
+        'wallet.lockedDate' : 0
+      }
+    }, {new : true})
+
+    return res.status(200).json({status: 'ok', wallet: updatedUser._doc.wallet})
+
+  }catch(err){
+    res.status(500).json({status:'error', message:'Unable to unlock funds'})
   }
 })
 
