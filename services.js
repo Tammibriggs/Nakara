@@ -38,6 +38,32 @@ module.exports.sendVerificationEmail = (email, name, verificationCode, redirectU
   return sgMail.send(message)
 }
 
+module.exports.sendResetPasswordEmail = ({email, name, resetPasswordCode, redirectUrl}) => {
+  const message = {
+    from: {
+      name: 'noreply@YZXchange.com',
+      email: verifiedEmail
+    },
+    to: email,
+    subject: 'Reset your password',
+    text: `Hello ${name}\nFollow the link below to reset your password.\n
+    https://nakara.herokuapp.com/api/auth/verify-reset-user-redirect?code=${resetPasswordCode}&redirectUrl=${redirectUrl}\nif you didn't ask to reset your password, 
+    you can ignore this email.\nThanks.\nSupport@YZXchange.com
+    `,
+    html: 
+    `
+     <h4>Hello ${name}</h4>
+     <p>Follow the link below to reset your password.</p>
+     <a target='_blank' href='http://localhost:8800/api/auth/verify-reset-user-redirect?code=${resetPasswordCode}&redirectUrl=${redirectUrl}'>Reset your password</a>
+     <p>if you didn't ask to reset your password, you can ignore this email.</p>
+     <p>Thanks.<p>
+     <p>Support@YZXchange.com</p>
+
+    `
+  }
+  return sgMail.send(message)
+}
+
 module.exports.sendBuyCryptoAdminEmail = ({name, currency, amount, walletAddress}) => {
   const message = {
     from: {

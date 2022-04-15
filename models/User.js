@@ -58,5 +58,15 @@ UserSchema.methods.generateVerificationToken = function () {
   return verificationToken
 }
 
+UserSchema.methods.generateResetToken = function () {
+  const user = this
+  const resetToken = jwt.sign(
+    { id: user._id },
+    process.env.VERIFICATION_TOKEN_SECRET,
+    { expiresIn: "180s" }
+)
+  return resetToken
+}
+
 
 module.exports = mongoose.model('User', UserSchema)
